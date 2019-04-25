@@ -8,9 +8,14 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Vector;
 
 public class PNGUtils {
-    public static void pdf2Image(String PdfFilePath, String dstImgFolder, int dpi, Logger logger) {
+    public static void pdf2Image(String PdfFilePath,
+                                 String dstImgFolder,
+                                 int dpi,
+                                 Logger logger,
+                                 Vector<String> failAccumulator) {
         File file = new File(PdfFilePath);
         PDDocument pdDocument;
         try {
@@ -19,20 +24,20 @@ public class PNGUtils {
             String imagePDFName = file.getName().substring(0, dot); // 获取图片文件名
             String imgFolderPath = null;
             if (dstImgFolder.equals("")) {
-                imgFolderPath = imgPDFPath + File.separator + imagePDFName;// 获取图片存放的文件夹路径
+                imgFolderPath = imgPDFPath + File.separator;// 获取图片存放的文件夹路径
             } else {
-                imgFolderPath = dstImgFolder + File.separator + imagePDFName;
+                imgFolderPath = dstImgFolder + File.separator;
             }
-
-            if (createDirectory(imgFolderPath)) {
-                pdDocument = PDDocument.load(file);
+            String imgFilePathPrefix = imgFolderPath + imagePDFName.substring(0, 2) + File.separator;
+            pdDocument = PDDocument.load(file);
+            if (createDirectory(imgFilePathPrefix)) {
                 PDFRenderer renderer = new PDFRenderer(pdDocument);
                 int pages =  pdDocument.getNumberOfPages();
                 StringBuffer imgFilePath = null;
                 for (int i = 0; i < pages; i++) {
-                    String imgFilePathPrefix = imgFolderPath + File.separator + imagePDFName;
                     imgFilePath = new StringBuffer();
                     imgFilePath.append(imgFilePathPrefix);
+                    imgFilePath.append(imagePDFName);
                     imgFilePath.append("_");
                     imgFilePath.append((i + 1));
                     imgFilePath.append(".png");
@@ -40,12 +45,14 @@ public class PNGUtils {
                     BufferedImage image = renderer.renderImageWithDPI(i, dpi);
                     ImageIO.write(image, "png", dstFile);
                 }
-                logger.info("PDF文档转PNG图片成功！");
+                logger.info("PDF文档\"" + PdfFilePath + "\"转PNG图片成功！");
             } else {
-                logger.error("PDF文档转PNG图片失败：" + "创建" + imgFolderPath + "失败");
+                logger.error("PDF文档\"" + PdfFilePath + "\"转PNG图片失败：" +
+                        "创建" + imgFolderPath + "失败");
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            failAccumulator.add(PdfFilePath);
+            logger.error("无法转换的pdf路径为：" + PdfFilePath + "原因：" + e.getMessage());
         }
     }
 
