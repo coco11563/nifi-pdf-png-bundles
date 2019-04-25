@@ -101,7 +101,7 @@ public class PDF2PNGByFileName extends AbstractProcessor {
         BlockingQueue<Runnable> bq = new LinkedBlockingQueue<>();
         ThreadPoolExecutor pool = new ThreadPoolExecutor(poolSize, poolSize, 0,TimeUnit.MILLISECONDS, bq);
         for (final String s : processFile) {
-            pool.execute(() -> PNGUtils.pdf2Image(s, optPath, dpi,logger, fail));
+            pool.submit(() -> PNGUtils.pdf2Image(s, optPath, dpi,logger, fail));
         }
         pool.shutdown();
         try {//等待直到所有任务完成
