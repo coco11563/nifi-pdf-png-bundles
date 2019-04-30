@@ -60,7 +60,13 @@ public class PNGUtils {
             logger.error("无法转换的pdf路径为：" + PdfFilePath + "原因：" + e.getMessage());
         }
     }
-
+    /**
+     * this function will process a local file
+     * index - the page num of the pdf
+     * parent - origin file name
+     * filename - this png name
+     * prefix - the prefix (first two word of this pdf)
+     */
     public static List<FlowFile> pdf2Image(File PdfFilePath,
                                            int dpi,
                                            Logger logger,
@@ -83,7 +89,7 @@ public class PNGUtils {
                 });
                 ff = session.putAttribute(ff, "index", "" + (i + 1)); //index
                 ff = session.putAttribute(ff, "parent", PdfFilePath.getName()); //origin name
-                ff = session.putAttribute(ff, "name", imagePDFName + "_" + (i + 1) + ".png");
+                ff = session.putAttribute(ff, "filename", imagePDFName + "_" + (i + 1) + ".png");
                 ff = session.putAttribute(ff, "prefix", imgFilePathPrefix);
                 ret.add(ff);
             }
@@ -94,7 +100,14 @@ public class PNGUtils {
         }
         return ret;
     }
-
+    /**
+     * this function will process a Flowfile
+     *
+     * index - the page num of the pdf
+     * parent - origin file name
+     * filename - this png name
+     * prefix - the prefix (first two word of this pdf)
+     */
     public static List<FlowFile> pdf2Image(FlowFile pdfff,
                                            int dpi,
                                            Logger logger,
@@ -119,7 +132,7 @@ public class PNGUtils {
                 });
                 ff = session.putAttribute(ff, "index", "" + (i + 1)); //index
                 ff = session.putAttribute(ff, "parent", fileName); //origin name
-                ff = session.putAttribute(ff, "name", imagePDFName + "_" + (i + 1) + ".png");
+                ff = session.putAttribute(ff, "filename", imagePDFName + "_" + (i + 1) + ".png");
                 ff = session.putAttribute(ff, "prefix", imgFilePathPrefix);
                 ret.add(ff);
             }

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.Vector;
 
 import static org.apache.nifi.processors.ext.pdf.PDF2PNGByFileName.listFile;
 
@@ -17,6 +18,7 @@ public class testPDF2PNG {
 //                200, logger, new HashSet<String>());
 
         for (String f : listFile("C:\\Users\\coco1\\Documents\\WeChat Files\\zhehuoaizhuangbi1995\\FileStorage\\File\\2019-04")) {
+//            PNGUtils.pdf2Image(new File(f), 200, logger, new Vector<String>())
             System.out.println(f);
         }
     }
