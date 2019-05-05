@@ -3,6 +3,7 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.slf4j.Logger;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -39,41 +40,31 @@ public class FTPUtils {
      * @param inputStream 输入文件流
      * @return
      */
-    public static boolean uploadFile(String hostname,String username,String password,Integer port, String pathname, String fileName,InputStream inputStream){
+    public static boolean uploadFile(String hostname, String username, String password, Integer port,
+                                     String pathname, String fileName, InputStream inputStream,
+                                     Logger logger){
         boolean flag = false;
         try{
-            System.out.println("开始上传文件");
-            initFtpClient(hostname,username,password,port);
+            logger.info("开始上传文件 : " + fileName);
+            if (ftpClient == null || !ftpClient.isAvailable()){
+                logger.info("初始化FTPCLI...");
+                initFtpClient(hostname,username,password,port);
+            }
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
             ftpClient.enterLocalPassiveMode();
             CreateDirecroty(pathname);
             ftpClient.makeDirectory(pathname);
             ftpClient.setControlEncoding("utf-8");
             ftpClient.storeFile(fileName, inputStream);
-            System.out.println("上传结束");
+            logger.info("上传结束 : " + fileName);
             inputStream.close();
             ftpClient.logout();
             flag = true;
-            System.out.println("上传文件成功");
+            logger.info("上传文件成功 : " + fileName);
 
         }catch (Exception e) {
-            System.out.println("上传文件失败");
-            e.printStackTrace();
-        }finally{
-            if(ftpClient.isConnected()){
-                try{
-                    ftpClient.disconnect();
-                }catch(IOException e){
-                    e.printStackTrace();
-                }
-            }
-            if(null != inputStream){
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            logger.error("上传文件失败 : " + fileName);
+            logger.error(e.getMessage());
         }
         return true;
     }
