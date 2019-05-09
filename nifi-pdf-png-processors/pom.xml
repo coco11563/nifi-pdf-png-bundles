@@ -100,7 +100,13 @@
         <artifactId>nifi-nar-utils</artifactId>
         <version>${nifi.version}</version>
     </dependency>
-    <dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.nifi/nifi-kite-nar -->
+     <dependency>
+         <groupId>org.apache.nifi</groupId>
+         <artifactId>nifi-kite-nar</artifactId>
+         <version>1.2.0</version>
+     </dependency>
+     <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>1.7.25</version>
