@@ -1,30 +1,36 @@
 package pdf.test;
 
+import org.apache.avro.Schema;
+import org.apache.avro.file.DataFileStream;
+import org.apache.avro.generic.GenericDatumReader;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.avro.io.DatumReader;
 import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.processor.ProcessSession;
-import org.apache.nifi.processors.ext.pdf.PDF2PNGByFileName;
 import org.apache.nifi.processors.ext.pdf.SimpleCSVToAvro;
+import org.apache.nifi.processors.ext.pdf.utils.DirectBinaryDecoder;
 import org.apache.nifi.util.MockFlowFile;
+import org.apache.nifi.util.MockProcessSession;
 import org.apache.nifi.util.TestRunner;
 import org.apache.nifi.util.TestRunners;
 import org.junit.Test;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class CSVProcessorTest {
     final private TestRunner testRunnerSPX = TestRunners.newTestRunner(new SimpleCSVToAvro());
     @Test
-    public void testRunnerSPX() {
+    public void testRunnerSPX() throws IOException {
+        System.out.println(schema);
         testRunnerSPX.setProperty(SimpleCSVToAvro.DELIMITER, "\t");
         testRunnerSPX.setProperty(SimpleCSVToAvro.SCHEMA, schema);
+//        ProcessSession ps = testRunnerSPX.getProcessSessionFactory().createSession();
         ProcessSession ps = testRunnerSPX.getProcessSessionFactory().createSession();
-        FlowFile csv = ps.create();
-        FlowFile test = ps.write(csv, out -> {
+        FlowFile test = ps.write(ps.create(), out -> {
             BufferedReader fis =
                     new BufferedReader(new FileReader
-                            (new File("C:\\Users\\coco1\\IdeaProjects\\nifi-pdf-png-bundles\\nifi-pdf-png-processors\\src\\main\\resources\\csv\\combine.csv")));
+                            (new File("C:\\Users\\coco1\\IdeaProjects\\nifi-pdf-png-bundles\\nifi-pdf-png-processors\\src\\main\\resources\\csv\\combine_red.csv")));
             String str = null;
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
             while ((str = fis.readLine()) != null) {
@@ -38,9 +44,21 @@ public class CSVProcessorTest {
         List<MockFlowFile> ff =
                 testRunnerSPX.getFlowFilesForRelationship(SimpleCSVToAvro.REL_SUCCESS);
         int i = 1;
+        Schema o_schema = new Schema.Parser().parse(schema);
         for (MockFlowFile f : ff) {
-            f.assertContentEquals("C:\\Users\\coco1\\IdeaProjects\\nifi-pdf-png-bundles\\nifi-pdf-png-processors\\src\\main\\resources\\pdf\\ddd" + i + ".pdf", StandardCharsets.UTF_8);
-            i += 1;
+            ps.read(f, in -> {
+                GenericRecord gr = null;
+                int count = 0;
+                try (final DataFileStream<GenericRecord> reader =
+                             new DataFileStream<>(in, new GenericDatumReader<GenericRecord>(o_schema))){
+                    while (reader.hasNext()) {
+                        gr = reader.next();
+                        count ++;
+                    }
+                }
+                System.out.println(count);
+            });
+
         }
     }
 

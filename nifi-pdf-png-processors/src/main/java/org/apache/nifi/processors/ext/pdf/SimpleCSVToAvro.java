@@ -1,12 +1,8 @@
 package org.apache.nifi.processors.ext.pdf;
 
-import avro.shaded.com.google.common.annotations.VisibleForTesting;
-import avro.shaded.com.google.common.collect.ImmutableList;
-import avro.shaded.com.google.common.collect.ImmutableSet;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericData;
-import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.components.PropertyDescriptor;
@@ -92,7 +88,9 @@ public class SimpleCSVToAvro extends AbstractProcessor {
         final Schema schema = new Schema.Parser().parse(schemaProperty);
         final DataFileWriter<GenericData.Record> writer = new DataFileWriter<>(AvroUtils.newDatumWriter(schema, GenericData.Record.class));
 //        BufferedReader bf = new BufferedReader(new InputStreamReader(session.read(incomingCSV)));
+        List<Integer> neo = new LinkedList<>();
         FlowFile outgoingAvro = session.write(incomingCSV, (in, out) -> {
+            int count = 0;
             BufferedReader bf = new BufferedReader(new InputStreamReader(in));
             try (DataFileWriter<GenericData.Record> w = writer.create(schema, out)) {
                 String head = bf.readLine();
@@ -100,6 +98,7 @@ public class SimpleCSVToAvro extends AbstractProcessor {
                 int len = schemaL.length;
                 String str = null;
                 while ((str = bf.readLine()) != null) {
+                    if (str.equals("")) continue;
                     try {
                         GenericData.Record rec = new GenericData.Record(schema);
                         int j = 0;
@@ -112,20 +111,27 @@ public class SimpleCSVToAvro extends AbstractProcessor {
                             String schemaName = schemaL[j];
                             List<Schema> type = schema.getField(schemaName).schema().getTypes();
                             Object value = null;
+                            if (t - 1 < tf) {
+                                rec.put(schemaL[j], null);
+                                continue;
+                            }
                             String subStr = str.substring(tf, t - 1);
-                            if (subStr != "") {
-                                Schema.Type secType = type.get(0).getType().equals(Schema.Type.NULL)? type.get(1).getType() : type.get(0).getType();
+                            if (!subStr.equals("")) {
+                                Schema.Type secType =
+                                        type.get(0).getType().equals(Schema.Type.NULL) ?
+                                                type.get(1).getType() : type.get(0).getType();
                                 switch (secType){
-                                   case LONG : value = Long.parseLong(str.substring(tf, t - 1)); break;
-                                    case INT : value = Integer.parseInt(subStr); break;
+                                   case LONG : value =
+                                           Long.parseLong(subStr); break;
+                                   case INT : value = Integer.parseInt(subStr); break;
                                    default : value = subStr; break;
+                                }
                             }
-                            }
-
                             rec.put(schemaL[j],value);
                             j++;
                         }
                         w.append(rec);
+                        count ++;
                         w.flush();
                     } catch (Exception e) {
                         logger.error(e.getMessage());
@@ -134,10 +140,9 @@ public class SimpleCSVToAvro extends AbstractProcessor {
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }
+            neo.add(count);
         });
+        outgoingAvro = session.putAttribute(outgoingAvro, "count", neo.get(0).toString());
         session.transfer(outgoingAvro, REL_SUCCESS);
-        session.commit();
     }
-
-
 }

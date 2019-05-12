@@ -4,6 +4,7 @@ import org.apache.commons.net.ftp.FTP;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
 import org.apache.nifi.annotation.documentation.Tags;
 import org.apache.nifi.components.PropertyDescriptor;
+import org.apache.nifi.components.Validator;
 import org.apache.nifi.flowfile.FlowFile;
 import org.apache.nifi.processor.*;
 import org.apache.nifi.processor.exception.ProcessException;
@@ -35,12 +36,14 @@ public class FTPUploader extends AbstractProcessor {
 
     public final static PropertyDescriptor HOST_NAME = new PropertyDescriptor.Builder()
             .name("ftp server hostname")
+            .addValidator(Validator.VALID)
             .required(true)
             .description("ftp服务器地址")
             .build();
 
     public final static PropertyDescriptor USER_NAME = new PropertyDescriptor.Builder()
             .name("ftp server username")
+            .addValidator(Validator.VALID)
             .required(true)
             .defaultValue("ftp")
             .description("ftp用户名")
@@ -48,6 +51,7 @@ public class FTPUploader extends AbstractProcessor {
 
     public final static PropertyDescriptor PASSWORD = new PropertyDescriptor.Builder()
             .name("ftp server password")
+            .addValidator(Validator.VALID)
             .required(false)
             .description("ftp登陆密码")
             .build();
@@ -63,6 +67,7 @@ public class FTPUploader extends AbstractProcessor {
 
     public final static PropertyDescriptor PATH_NAME = new PropertyDescriptor.Builder()
             .name("ftp store file path")
+            .addValidator(Validator.VALID)
             .required(false)
             .description("ftp服务器存储位置")
             .build();
