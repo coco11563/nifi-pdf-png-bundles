@@ -114,7 +114,7 @@ public class FTPUploader extends AbstractProcessor {
         try {
             if (FTPUtils.ftpClient == null || FTPUtils.ftpClient.isAvailable())
                 FTPUtils.initFtpClient(host, user, passwd, port);
-            String putPath = path + File.pathSeparator + prefix + File.pathSeparator + filename;
+            String putPath = path + "/" + prefix + "/" + filename;
             if (FTPUtils.existFile(putPath)) {
                 session.transfer(ff, REL_FAILURE);
                 logger.error("file {} is existed in server", new Object[]{putPath});
@@ -126,7 +126,7 @@ public class FTPUploader extends AbstractProcessor {
             if (!FTPUtils.existFile(path + File.pathSeparator + prefix)) {
                 FTPUtils.CreateDirecroty(path + File.pathSeparator + prefix);
             }
-            FTPUtils.uploadFile(host, user, passwd, port, path + File.pathSeparator + prefix,
+            FTPUtils.uploadFile(host, user, passwd, port, path + "/" + prefix,
                     filename, session.read(ff), logger);
             session.transfer(ff, REL_SUCCESS);
         } catch (IOException e) {

@@ -59,7 +59,6 @@ public class FTPUtils {
             logger.info("上传结束 : " + fileName);
             inputStream.close();
             ftpClient.logout();
-            flag = true;
             logger.info("上传文件成功 : " + fileName);
 
         }catch (Exception e) {

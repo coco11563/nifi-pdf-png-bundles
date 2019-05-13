@@ -20,11 +20,11 @@ public class FTPTest {
     final private TestRunner testRunnerSPX = TestRunners.newTestRunner(new FTPUploader());
     @Test
     public void testRunnerSPX() throws IOException {
-        testRunnerSPX.setProperty(FTPUploader.HOST_NAME, "192.168.1.1");
+        testRunnerSPX.setProperty(FTPUploader.HOST_NAME, "192.168.3.126");
         testRunnerSPX.setProperty(FTPUploader.PASSWORD,"");
-        testRunnerSPX.setProperty(FTPUploader.USER_NAME,"");
+        testRunnerSPX.setProperty(FTPUploader.USER_NAME,"ftp");
         testRunnerSPX.setProperty(FTPUploader.PORT,"21");
-        testRunnerSPX.setProperty(FTPUploader.PATH_NAME,"");
+        testRunnerSPX.setProperty(FTPUploader.PATH_NAME,"/pngstore");
 //        ProcessSession ps = testRunnerSPX.getProcessSessionFactory().createSession();
         ProcessSession ps = testRunnerSPX.getProcessSessionFactory().createSession();
         FlowFile test = ps.write(ps.create(), out -> {
@@ -39,6 +39,9 @@ public class FTPTest {
             }
             bw.flush();
         });
+        test = ps.putAttribute(test, "prefix", "test_prefix");
+
+        test = ps.putAttribute(test, "filename", "test_filename");
         testRunnerSPX.enqueue(test);
         testRunnerSPX.run();
     }
