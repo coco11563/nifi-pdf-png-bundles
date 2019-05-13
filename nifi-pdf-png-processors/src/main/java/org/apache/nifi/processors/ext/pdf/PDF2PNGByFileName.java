@@ -138,10 +138,9 @@ public class PDF2PNGByFileName extends AbstractProcessor {
                                     failing);
                     processSession.remove(ff);
                     processSession.transfer(ffs, REL_SUCCESS);
-                    if (!failing.isEmpty()) {
-                        processSession.transfer(failing, REL_FAILURE);
-                    }
-                    processSession.commit();
+//                    if (!failing.isEmpty()) {
+//                        processSession.transfer(failing, REL_FAILURE);
+//                    }
                     return;
                 }
             }

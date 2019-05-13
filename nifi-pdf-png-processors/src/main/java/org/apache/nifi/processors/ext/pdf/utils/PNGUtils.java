@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
@@ -121,9 +122,11 @@ public class PNGUtils {
             int dot = fileName.lastIndexOf('.');
             String imagePDFName = fileName.substring(0, dot); // 获取图片文件名
             String imgFilePathPrefix = fileName.substring(0, 2);
-            pdDocument = PDDocument.load(session.read(pdfff));
+            InputStream is = session.read(pdfff);
+            pdDocument = PDDocument.load(is);
             PDFRenderer renderer = new PDFRenderer(pdDocument);
             int pages =  pdDocument.getNumberOfPages();
+            is.close();
             for (int i = 0; i < pages; i++) {
                 BufferedImage image = renderer.renderImageWithDPI(i, dpi);
                 FlowFile ff = session.create();
