@@ -15,3 +15,4 @@
 org.apache.nifi.processors.ext.pdf.PDF2PNGByFileName
 org.apache.nifi.processors.ext.pdf.FTPUploader
 org.apache.nifi.processors.ext.pdf.SimpleCSVToAvro
+org.apache.nifi.processors.ext.pdf.PutAttribute
