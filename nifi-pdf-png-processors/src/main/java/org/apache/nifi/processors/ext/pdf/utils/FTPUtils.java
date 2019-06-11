@@ -52,8 +52,6 @@ public class FTPUtils {
             }
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
             ftpClient.enterLocalPassiveMode();
-            CreateDirecroty(pathname);
-            ftpClient.makeDirectory(pathname);
             ftpClient.setControlEncoding("utf-8");
             ftpClient.storeFile(fileName, inputStream);
             logger.info("上传结束 : " + fileName);
